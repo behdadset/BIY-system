@@ -8,10 +8,4 @@
     <item android:id="@+id/item_about"
           android:title="About"
           app:showAsAction="never"/>
-    <item android:id="@+id/item_contact"
-          android:title="Contact"
-          app:showAsAction="never"/>
-    <item android:id="@+id/item_help"
-          android:title="Help"
-          app:showAsAction="never"/>
 </menu>

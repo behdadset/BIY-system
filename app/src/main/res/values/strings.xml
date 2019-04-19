@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">reviewvia</string>
+    <string name="enter_the_barcode">Enter the barcode</string>
 </resources>
