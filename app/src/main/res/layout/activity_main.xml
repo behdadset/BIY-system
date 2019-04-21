@@ -15,6 +15,7 @@
         android:layout_marginTop="20dp"
         android:fontFamily="sans-serif-condensed"
         android:text="REVIEWVIA"
+        android:textStyle=""
         android:textAlignment="center"
         android:textSize="40sp"
         />
@@ -52,7 +53,6 @@
         android:layout_marginTop="100dp"
         android:fontFamily="Arial_bold"
         android:text="Tell us the barcode by "
-        android:textStyle="bold"
         android:textAlignment="center"
         android:textSize="25sp"
         />
@@ -111,6 +111,7 @@
             android:layout_weight="1"
             android:layout_marginLeft="80dp"
             android:text="ENTER"/>
+
     </LinearLayout>
 
     <TextView
@@ -120,5 +121,22 @@
         android:textAlignment="center"
         android:textSize="20sp"
         android:layout_alignParentBottom="true"/>
+
+    <Button
+        android:id="@+id/btn_test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/textView_title"
+        android:layout_marginBottom="59dp"
+        android:text="Test"/>
+
+    <TextView
+        android:id="@+id/tv_test"
+        android:layout_width="198dp"
+        android:layout_height="113dp"
+        android:layout_alignEnd="@+id/textView_title"
+        android:layout_alignParentBottom="true"
+        android:text="Result:"/>
 
 </RelativeLayout>

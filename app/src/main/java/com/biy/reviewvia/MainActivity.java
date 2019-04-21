@@ -17,9 +17,13 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
     private ImageView image_scan;
     private ImageView image_enter;
+    private ArrayList<String> mReviews = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +68,17 @@ public class MainActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
+
+
+        //for test only start
+        findViewById(R.id.btn_test).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, ReviewsActivity.class));
+            }
+        });
+        //for test only end
+
     }
 
     @Override
@@ -82,4 +97,5 @@ public class MainActivity extends AppCompatActivity {
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
+
 }
