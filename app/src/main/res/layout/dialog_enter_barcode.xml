@@ -14,29 +14,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/enter_the_barcode"/>
-    <LinearLayout
+
+    <EditText
+        android:id="@+id/editText_enter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:ems="10"
+        android:inputType="text"
+        android:hint="Enter barcode number here"
+        android:layout_gravity="center_horizontal"/>
+
+    <Button
+        android:id="@+id/btn_go"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <EditText
-            android:id="@+id/editText_enter"
-            android:layout_width="220dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="30dp"
-            android:ems="10"
-            android:inputType="text"
-            android:hint="Enter barcode here"/>
-        <Button
-            android:id="@+id/btn_go"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Go"
-            android:layout_marginTop="30dp"
-            android:layout_marginRight="20dp"
-            />
-
-    </LinearLayout>
+        android:text="Go"
+        android:layout_margin="20dp"
+        android:layout_gravity="center_horizontal"/>
 
 
 </LinearLayout>
