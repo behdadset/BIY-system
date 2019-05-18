@@ -122,21 +122,4 @@
         android:textSize="20sp"
         android:layout_alignParentBottom="true"/>
 
-    <Button
-        android:id="@+id/btn_test"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/textView_title"
-        android:layout_marginBottom="59dp"
-        android:text="Test"/>
-
-    <TextView
-        android:id="@+id/tv_test"
-        android:layout_width="198dp"
-        android:layout_height="113dp"
-        android:layout_alignEnd="@+id/textView_title"
-        android:layout_alignParentBottom="true"
-        android:text="Result:"/>
-
 </RelativeLayout>

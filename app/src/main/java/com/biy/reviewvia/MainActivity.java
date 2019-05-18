@@ -1,19 +1,13 @@
 package com.biy.reviewvia;
 
 import android.app.Activity;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.widget.ListView;
-import android.widget.Toast;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import java.util.ArrayList;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,8 +16,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                         if(!mEnter.getText().toString().isEmpty()){
                             //st.makeText(MainActivity.this,"Enter successful",Toast.LENGTH_SHORT).show();
                             barcode = mEnter.getText().toString();
-                            new GetProduct().execute();
+                            new GetProduct().execute(barcode);
 
                         }else{
                             Toast.makeText(MainActivity.this,"Please enter the barcode ",Toast.LENGTH_SHORT).show();
@@ -82,17 +84,6 @@ public class MainActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
-
-
-        //for test only start
-        findViewById(R.id.btn_test).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, ReviewsActivity.class));
-            }
-        });
-
-
     }
 
     @Override
@@ -138,35 +129,37 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("MainActivity","scanned");
                 //Toast.makeText(this,"scanned:" + result.getContents(),Toast.LENGTH_LONG).show();
                 barcode = result.getContents();
-                new GetProduct().execute();
+                new GetProduct().execute(barcode);
                 ((TextView)findViewById(R.id.tv_prompt)).setText(result.getContents());
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    //Pasted
-    private String TAGapp = MainActivity.class.getSimpleName();
-    private ListView lv;
-
-    String productName="";
-
-
-    private class GetProduct extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
+    private void toReviewer(String productName) {
+        if (productName == null) {
+            Toast.makeText(this, "No matching data", Toast.LENGTH_LONG).show();
+        } else {
+            Intent intent = new Intent(MainActivity.this, ReviewsActivity.class);
+            intent.putExtra("product_name", productName);
+            startActivity(intent);
         }
 
+    }
+
+    private class GetProduct extends AsyncTask<String, Void, String> {
+
+        private static final String GET_PRODUCT_TAG = "tag_get_product";
+
         @Override
-        protected Void doInBackground(Void... arg0) {
+        protected String doInBackground(String... codes) {
             HttpHandler sh = new HttpHandler();
             // Making a request to url and getting response
-            String url = "https://api.upcitemdb.com/prod/trial/lookup?upc="+ barcode;
+            String url = "https://api.upcitemdb.com/prod/trial/lookup?upc="+ codes[0];
             String jsonStr = sh.makeServiceCall(url);
+            String result = null;
 
-            Log.e(TAGapp, "Response from url: " + jsonStr);
+            Log.i(GET_PRODUCT_TAG, "Response from url: " + jsonStr);
             if (jsonStr != null) {
                 try {
                     JSONObject jsonObj = new JSONObject(jsonStr);
@@ -176,50 +169,31 @@ public class MainActivity extends AppCompatActivity {
 
                     int i = 0;
                     JSONObject c = products.getJSONObject(i);
-                    String title = c.getString("title");
-                    productName = title;
-
+                    result = c.getString("title");
 
                 } catch (final JSONException e) {
-                    Log.e(TAGapp, "Json parsing error: " + e.getMessage());
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(),
-                                    "Json parsing error: " + e.getMessage(),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    });
+                    Log.i(GET_PRODUCT_TAG, "Json parsing error: " + e.getMessage());
 
                 }
 
             } else {
-                Log.e(TAGapp, "Couldn't get json from server.");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(),
-                                "Couldn't get json from server. Check LogCat for possible errors!",
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
+                Log.i(GET_PRODUCT_TAG, "Couldn't get json from server.");
             }
 
-            return null;
+            return result;
         }
 
         @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getApplicationContext(),
-                            productName,
-                            Toast.LENGTH_LONG).show();
-                }
-            });
+        protected void onPreExecute() {
+            super.onPreExecute();
+
         }
+
+        @Override
+        protected void onPostExecute(final String result) {
+            toReviewer(result);
+        }
+
     }
 }
 
