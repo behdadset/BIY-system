@@ -1,12 +1,19 @@
 package com.biy.reviewvia;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.ListView;
+import android.widget.Toast;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.util.ArrayList;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,18 +22,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+
+
+
     private static final String TAG = "MainActivity";
     private ImageView image_scan;
     private ImageView image_enter;
     private ArrayList<String> mReviews = new ArrayList<>();
+    String barcode;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +67,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         if(!mEnter.getText().toString().isEmpty()){
-                            Toast.makeText(MainActivity.this,"Enter successful",Toast.LENGTH_SHORT).show();
+                            //st.makeText(MainActivity.this,"Enter successful",Toast.LENGTH_SHORT).show();
+                            barcode = mEnter.getText().toString();
+                            new GetProduct().execute();
+
                         }else{
                             Toast.makeText(MainActivity.this,"Please enter the barcode ",Toast.LENGTH_SHORT).show();
 
@@ -80,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, ReviewsActivity.class));
             }
         });
-        //for test only end
+
 
     }
 
@@ -125,12 +136,90 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this,"cancelled",Toast.LENGTH_LONG).show();
             }else{
                 Log.d("MainActivity","scanned");
-                Toast.makeText(this,"scanned:" + result.getContents(),Toast.LENGTH_LONG).show();
-
+                //Toast.makeText(this,"scanned:" + result.getContents(),Toast.LENGTH_LONG).show();
+                barcode = result.getContents();
+                new GetProduct().execute();
                 ((TextView)findViewById(R.id.tv_prompt)).setText(result.getContents());
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    //Pasted
+    private String TAGapp = MainActivity.class.getSimpleName();
+    private ListView lv;
+
+    String productName="";
+
+
+    private class GetProduct extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            HttpHandler sh = new HttpHandler();
+            // Making a request to url and getting response
+            String url = "https://api.upcitemdb.com/prod/trial/lookup?upc="+ barcode;
+            String jsonStr = sh.makeServiceCall(url);
+
+            Log.e(TAGapp, "Response from url: " + jsonStr);
+            if (jsonStr != null) {
+                try {
+                    JSONObject jsonObj = new JSONObject(jsonStr);
+
+                    // Getting JSON Array node
+                    JSONArray products = jsonObj.getJSONArray("items");
+
+                    int i = 0;
+                    JSONObject c = products.getJSONObject(i);
+                    String title = c.getString("title");
+                    productName = title;
+
+
+                } catch (final JSONException e) {
+                    Log.e(TAGapp, "Json parsing error: " + e.getMessage());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(),
+                                    "Json parsing error: " + e.getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                }
+
+            } else {
+                Log.e(TAGapp, "Couldn't get json from server.");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),
+                                "Couldn't get json from server. Check LogCat for possible errors!",
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(),
+                            productName,
+                            Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+    }
 }
+

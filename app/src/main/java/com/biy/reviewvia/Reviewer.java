@@ -1,9 +1,6 @@
 package com.biy.reviewvia;
 
-/**
- * @author Nicole Zhang
- * Description :
- */
+
 public class Reviewer {
     private String author;
     private String publishedDate;
