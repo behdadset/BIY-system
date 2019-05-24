@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.item_history:
-                showHistory();
+                startActivity(new Intent(this, HistoryActivity.class));
                 return true;
             case R.id.item_about:
                 showAbout();
@@ -106,10 +106,6 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    void showHistory(){
-
     }
 
     void showAbout(){
@@ -142,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Intent intent = new Intent(MainActivity.this, ReviewsActivity.class);
             intent.putExtra("product_name", productName);
+            intent.putExtra("barcode", barcode);
             startActivity(intent);
         }
 

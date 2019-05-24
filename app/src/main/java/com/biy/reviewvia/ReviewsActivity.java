@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +14,11 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,15 +27,17 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ReviewsActivity extends AppCompatActivity {
 
     private String mProductName;
+    private String mBarcode;
     private TextView tvProductName;
     private ImageView mImageView;
     private RatingBar mRatingBar;
 
-    ArrayList<Reviewer> mList = new ArrayList<>();
+    List<Reviewer> mList = new ArrayList<>();
     private RecyclerViewAdapter mAdapter;
 
 
@@ -37,37 +45,40 @@ public class ReviewsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reviews);
-        mProductName = getIntent().getStringExtra("product_name");
 
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
-
         recyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager= new LinearLayoutManager(this);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-
-
-        mAdapter = new RecyclerViewAdapter(mList,this);
+        mAdapter = new RecyclerViewAdapter(mList);
         recyclerView.setAdapter(mAdapter);
-
         tvProductName = findViewById(R.id.tv_produtname);
-
         mImageView = findViewById(R.id.image_product);
         mRatingBar = findViewById(R.id.ratingbar);
 
-        getWebsite();
-
+        String reviewJson = getIntent().getStringExtra("review");
+        if (reviewJson != null) {
+            Gson gson = new Gson();
+            Review review = gson.fromJson(reviewJson, Review.class);
+            mList.addAll(review.getReviewsList());
+            loadData(review);
+        } else {
+            mProductName = getIntent().getStringExtra("product_name");
+            mBarcode = getIntent().getStringExtra("barcode");
+            getWebsite();
+        }
     }
 
-    private void getWebsite(){
+    private void getWebsite() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String targetUrl = "https://www.productreview.com.au/search?q=" + Uri.encode(mProductName);
 
-                try{
+                try {
                     Document doc = Jsoup.connect(targetUrl).get();
                     handleResultList(doc);
-                } catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                     toastError("Something went wrong");
                 }
@@ -98,18 +109,21 @@ public class ReviewsActivity extends AppCompatActivity {
                 final String avatarUrl = doc.selectFirst("meta[itemprop=image]").attr("content");
                 final Element ratingElement = doc.selectFirst("div[itemprop=aggregateRating]").selectFirst("meta[itemprop=ratingValue]");
 
+                final Review review = new Review(
+                        mBarcode,
+                        mProductName,
+                        targetUrl,
+                        productTitle,
+                        avatarUrl,
+                        ratingElement.attr("content"),
+                        new ArrayList<>(mList));
 
-                final URL url = new URL(avatarUrl);
-                final Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                saveToFirebase(review);
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        tvProductName.setText(productTitle);
-                        mAdapter.notifyDataSetChanged();
-                        mImageView.setImageBitmap(bmp);
-                        mRatingBar.setRating(Float.parseFloat(ratingElement.attr("content")));
-
+                        loadData(review);
                     }
                 });
             } else {
@@ -119,21 +133,42 @@ public class ReviewsActivity extends AppCompatActivity {
             exception.printStackTrace();
             toastError("Something went wrong");
         }
+    }
 
+    private void loadData(final Review review) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final URL url = new URL(review.getProductAvatarUrl());
+                    final Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tvProductName.setText(review.getProductTitle());
+                            mAdapter.notifyDataSetChanged();
+                            mImageView.setImageBitmap(bmp);
+                            mRatingBar.setRating(Float.parseFloat(review.getProductRating()));
+
+                        }
+                    });
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                    toastError("Something went wrong");
+                }
+            }
+        }).start();
     }
 
     private void handleReviewItems(Elements reviewElements) {
-        for(Element element : reviewElements) {
+        for (Element element : reviewElements) {
             final Element authorElement = element.selectFirst("div>div:first-child>div:first-child h4");
-             String date = element.select("meta").attr("itemprop", "datePublished").get(1).attr("content");
+            String date = element.select("meta").attr("itemprop", "datePublished").get(1).attr("content");
             date = date.split("T")[0];
             final Element reviewElement = element.getElementsByAttributeValue("itemProp", "description").get(0);
-            Reviewer reviewer = new Reviewer(authorElement.text(),date,reviewElement.text());
+            Reviewer reviewer = new Reviewer(authorElement.text(), date, reviewElement.text());
             mList.add(reviewer);
-            Log.d("reviewer",mList.toString());
-           /* Log.d("author",authorElement.text());
-            Log.d("date",date);
-            Log.d("review",reviewElement.text());*/
         }
 
     }
@@ -145,6 +180,25 @@ public class ReviewsActivity extends AppCompatActivity {
                 Toast.makeText(ReviewsActivity.this, content, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void saveToFirebase(Review review) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("reviews")
+                .document(review.getBarcode())
+                .set(review)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("Firestore", "DocumentSnapshot successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("Firestore", "Error writing document", e);
+                    }
+                });
     }
 
 
