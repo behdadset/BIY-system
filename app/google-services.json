@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "947212208869",
+    "firebase_url": "https://biy-system.firebaseio.com",
+    "project_id": "biy-system",
+    "storage_bucket": "biy-system.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:947212208869:android:a53ac68920346b0e",
+        "android_client_info": {
+          "package_name": "com.biy.reviewvia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "947212208869-krmpmqo6ofpjj894u2alsurkgum6p23h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAN26IPyHGPYoyvNlp-fdv8k7aoS35nOqw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "947212208869-krmpmqo6ofpjj894u2alsurkgum6p23h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(this,"scanned:" + result.getContents(),Toast.LENGTH_LONG).show();
                 barcode = result.getContents();
                 new GetProduct().execute(barcode);
-                ((TextView)findViewById(R.id.tv_prompt)).setText(result.getContents());
+                //((TextView)findViewById(R.id.tv_prompt)).setText(result.getContents());
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
