@@ -42,37 +42,39 @@
         android:textSize="18sp"
         />
 
-    <TextView
-        android:id="@+id/textView_slogan2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/image_logo"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="100dp"
-        android:fontFamily="Arial_bold"
-        android:text="Tell us the barcode by "
-        android:textAlignment="center"
-        android:textSize="25sp"
-        />
+
 
     <LinearLayout
+
         android:id="@+id/layout_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/textView_slogan2"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="170dp"
         android:orientation="horizontal"
         android:weightSum="3">
 
+    <LinearLayout
+        android:id="@+id/layout_image2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:weightSum="5">
+
         <ImageView
             android:id="@+id/image_scan"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="195dp"
+            android:layout_height="162dp"
             android:layout_weight="1"
-            android:layout_marginLeft="20dp"
-            android:src="@drawable/button_scan"/>
+            android:src="@drawable/button_scan" />
+
+        <TextView
+            android:layout_width="58dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="SCAN" />
 
         <ImageView
             android:id="@+id/image_or"
@@ -80,39 +82,25 @@
             android:layout_height="50dp"
             android:layout_marginTop="20dp"
             android:layout_weight="1"
-            android:src="@drawable/or"/>
+            android:src="@drawable/or" />
 
         <ImageView
             android:id="@+id/image_enter"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_weight="1"
-            android:layout_marginRight="20dp"
-            android:src="@drawable/icon_input"/>
-
-
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/layout_image"
-        android:orientation="horizontal"
-        android:weightSum="2">
+            android:src="@drawable/icon_input" />
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="117dp"
+            android:layout_height="30dp"
             android:layout_weight="1"
-            android:layout_marginLeft="60dp"
-            android:text="SCAN"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginLeft="80dp"
-            android:text="ENTER"/>
+            android:gravity="center"
+            android:text="Enter manually." />
 
     </LinearLayout>
+    </LinearLayout>
+
 
     <TextView
         android:id="@+id/tv_prompt"
