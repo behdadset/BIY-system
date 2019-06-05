@@ -101,16 +101,13 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, HistoryActivity.class));
                 return true;
             case R.id.item_about:
-                showAbout();
+                startActivity(new Intent(this,AboutActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    void showAbout(){
-
-    }
 
 
 
